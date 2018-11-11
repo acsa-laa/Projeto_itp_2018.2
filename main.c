@@ -6,7 +6,7 @@ int main()
 
 	printf("O que você quer fazer?\n");
 
-	printf("-digite 1 para criar tabela\n-digite 2 para listar tabelas\n");
+	printf("-digite 1 para criar tabela\n-digite 2 para listar tabelas\n-digite 3 para criar nova linha na tabela\n");
 
 	scanf("%d", &escolha);
 	
@@ -21,7 +21,8 @@ int main()
    				break;
 
    			case 3:
-   				printf("nenhuma opção por enquanto\n");
+   				getchar();
+				criar_novaLinha();
    				break;
 
    			case 4:

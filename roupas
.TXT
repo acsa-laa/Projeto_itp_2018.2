@@ -1,0 +1,2 @@
+colunas:3,
+id|preço|nome|
