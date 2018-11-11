@@ -1,0 +1,4 @@
+colunas:3,
+codigo |nome |preço |
+32 |fve |43 |
+9876 |pera |88 |

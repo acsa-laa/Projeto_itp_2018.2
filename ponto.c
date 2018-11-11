@@ -158,7 +158,7 @@ void receber_atributos(char **listAtributos, int colunas, FILE *arquivo){
 		fgets(listAtributos[i], 100, stdin);
 		fprintf(arquivo, "%s", listAtributos[i]);
 		fseek(arquivo, -1 , SEEK_CUR);
-		fprintf(arquivo, "|");
+		fprintf(arquivo, " |");
 	}
 
 	fprintf(arquivo, "\n");
@@ -232,9 +232,7 @@ void listar_tabela(){
 	while(!feof(todosArquivos)){
 
 		fgets(linha, 100,todosArquivos);
-		
 		ptr_palavra = strpbrk (linha, " ");
-
 		printf("%s", ptr_palavra);
 	}
 
@@ -248,8 +246,9 @@ void criar_novaLinha()
 	int colunas,i,controle;
 	FILE * arquivo;
 	char **listaAtributos;
+	char **listInformation;
 	char nomeTabela[100];
-	char atributo[100];
+	//TIPOS categoria;
 
 	printf("Nome da tabela?\n");
 	fgets(nomeTabela, 100, stdin);
@@ -263,7 +262,7 @@ void criar_novaLinha()
 
 	strcat(nomeTabela,".TXT");
 
-	arquivo = fopen(nomeTabela,"r");
+	arquivo = fopen(nomeTabela,"r+");
 
 	if (arquivo == NULL)
 	{
@@ -273,18 +272,15 @@ void criar_novaLinha()
 
 	fscanf(arquivo,"colunas:%d,\n", &colunas);
 
-	printf("%d\n", colunas);
-
 	listaAtributos = alocar_char(colunas);
+	listInformation = alocar_char(colunas);
 
 	for (i = 0; i < colunas; i++)
 	{
-
+		fscanf(arquivo,"%s |", listaAtributos[i]);
 	}
 
-	fclose(arquivo);
-
-	arquivo = fopen(nomeTabela,"a+");
+	fseek(arquivo, 0 , SEEK_END);
 
 	if (arquivo == NULL)
 	{
@@ -294,11 +290,11 @@ void criar_novaLinha()
 
 	for (i = 0; i < colunas; i++)
 	{
-		printf("digite:\n");
-		fgets(atributo, 100, stdin);
-		fprintf(arquivo, "%s", atributo);
-		fseek(arquivo,-1,SEEK_CUR);
-		fprintf(arquivo,"|");
+		printf("digite %s:\n", listaAtributos[i]);
+		fgets(listInformation[i], 100, stdin);
+		fprintf(arquivo, "%s", listInformation[i]);
+		fseek(arquivo, -1 , SEEK_CUR);
+		fprintf(arquivo, " |");
 	}
 
 	fprintf(arquivo, "\n");

@@ -8,7 +8,7 @@ typedef struct tipos{
 	unsigned long int inteiro;
 	float decimal;
 	char caractere;
-	char* string;
+	char string[100];
 }TIPOS;
 
 void criar_tabela();
