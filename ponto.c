@@ -220,12 +220,10 @@ void declarar_tipo(int *ponteiroTipo, int colunas){
 void listar_tabela(){
 
 	char linha[100];
-	char linha2[100];
 	char * ptr_palavra;
-	char * ptr_palavra2;
 	
 	FILE * todosArquivos;
-	todosArquivos = fopen("tabelas.TXT", "r+");
+	todosArquivos = fopen("tabelas.TXT", "r");
 	if (todosArquivos == NULL)
 	{
 		printf("erro na abertura do arquivo\n");
@@ -234,11 +232,8 @@ void listar_tabela(){
 	while(!feof(todosArquivos)){
 
 		fgets(linha, 100,todosArquivos);
-		fgets(linha2, 100,todosArquivos);
 		
 		ptr_palavra = strpbrk (linha, " ");
-
-		ptr_palavra2 = strpbrk (linha2, " ");
 
 		printf("%s", ptr_palavra);
 	}
