@@ -51,7 +51,7 @@ void criar_tabela()
 
 	receber_atributos(listaAtributos, atributos, arquivo);
 
-	declarar_tipo(listaTipos, atributos);
+	declarar_tipo(listaTipos, atributos, arquivo);
 
 	fclose(arquivo);
 
@@ -145,6 +145,7 @@ void receber_quantColuna(int colunas, FILE * arquivo){
 
 void receber_atributos(char **listAtributos, int colunas, FILE *arquivo){
 	int i,j;
+	printf("Os atributos devem ter nome simples\n");
 
 	for (i = 0; i < colunas; i++)
 	{	
@@ -164,57 +165,60 @@ void receber_atributos(char **listAtributos, int colunas, FILE *arquivo){
 	fprintf(arquivo, "\n");
 }
 
-void declarar_tipo(int *ponteiroTipo, int colunas){
+void declarar_tipo(int *ponteiroTipo, int colunas,FILE *arquivo){
 	int i, tipo;
 	printf("\nTipos dos atributos:\ndigite 1 para inteiro\ndigite 2 para double\ndigite 3 para char\ndigite 4 para string\n");
-	FILE *arquivoTipo;
-	
-	arquivoTipo = fopen("tipos.TXT", "a+");
 
-	if (arquivoTipo == NULL)
+	if (arquivo == NULL)
 		{
 			printf("erro na abertura do arquivo\n");
 		} 
 
-	fseek(arquivoTipo, 0, SEEK_END);
+	fseek(arquivo, 0, SEEK_END);
 
 	for (i = 0; i < colunas; i++)
 	{
-		printf("tipo do %d atributo: \n", i+1);
-		scanf("%d", &tipo);
-
-		switch (tipo)
+		if (i == 0)
 		{
-   			case 1:
-     			ponteiroTipo[i] = 1;
-   				break;
+			ponteiroTipo[i] = 1;
+		}
+		else{
+			printf("tipo do %d atributo: \n", i+1);
+			scanf("%d", &tipo);
 
-   			case 2:
- 	    		ponteiroTipo[i] = 2;
-   				break;
+			switch (tipo)
+			{
+   				case 1:
+     				ponteiroTipo[i] = 1;
+   					break;
 
-   			case 3:
-   				ponteiroTipo[i] = 3;
-   				break;
+   				case 2:
+ 	    			ponteiroTipo[i] = 2;
+   					break;
 
-   			case 4:
-   				ponteiroTipo[i] = 4;	
-   				break;
+   				case 3:
+   					ponteiroTipo[i] = 3;
+   					break;
 
-   			default:
-   				printf("valor invalido\n");
-   				printf("insira outro valor\n");
-   				i = i-1;
-   				break;
+   				case 4:
+   					ponteiroTipo[i] = 4;	
+   					break;
+
+   				default:
+   					printf("valor invalido\n");
+   					printf("insira outro valor\n");
+   					i = i-1;
+   					break;
+			}
 		}
 	}
 
 	for (i = 0; i < colunas; i++)
 	{
-		fprintf(arquivoTipo, "%d,", ponteiroTipo[i]);
+		fprintf(arquivo, "%d,", ponteiroTipo[i]);
 	}
-	fprintf(arquivoTipo, "|\n");
-	fclose(arquivoTipo);
+	fprintf(arquivo, "|\n");
+
 }
 
 void listar_tabela(){
@@ -229,9 +233,11 @@ void listar_tabela(){
 		printf("erro na abertura do arquivo\n");
 		return;
 	}
+
 	while(!feof(todosArquivos)){
 
 		fgets(linha, 100,todosArquivos);
+		//printf("%s", linha);
 		ptr_palavra = strpbrk (linha, " ");
 		printf("%s", ptr_palavra);
 	}
@@ -243,8 +249,12 @@ void listar_tabela(){
 
 void criar_novaLinha()
 {
-	int colunas,i,controle;
+	int colunas,i,p,j,controle;
 	FILE * arquivo;
+	int chavePrimaria;
+	int listaChave[100];
+	char lixo[100];
+	char listaTipos[100];
 	char **listaAtributos;
 	char **listInformation;
 	char nomeTabela[100];
@@ -270,7 +280,7 @@ void criar_novaLinha()
 		return;
 	}
 
-	fscanf(arquivo,"colunas:%d,\n", &colunas);
+	fscanf(arquivo,"colunas:%d,", &colunas);
 
 	listaAtributos = alocar_char(colunas);
 	listInformation = alocar_char(colunas);
@@ -278,6 +288,16 @@ void criar_novaLinha()
 	for (i = 0; i < colunas; i++)
 	{
 		fscanf(arquivo,"%s |", listaAtributos[i]);
+	}
+	fseek(arquivo, 1, SEEK_CUR);
+
+	fgets(listaTipos, 100, arquivo);
+
+	j = 0;
+	while(!feof(arquivo)){
+		fscanf(arquivo, "%d |", &listaChave[j]);
+		fgets(lixo, 100, arquivo);
+		j++;
 	}
 
 	fseek(arquivo, 0 , SEEK_END);
@@ -291,14 +311,42 @@ void criar_novaLinha()
 	for (i = 0; i < colunas; i++)
 	{
 		printf("digite %s:\n", listaAtributos[i]);
-		fgets(listInformation[i], 100, stdin);
-		fprintf(arquivo, "%s", listInformation[i]);
-		fseek(arquivo, -1 , SEEK_CUR);
-		fprintf(arquivo, " |");
+		if (i == 0)
+		{
+			fscanf(stdin, "%d", &chavePrimaria);
+			for (p = 0; p < j; p++)
+			{
+				if (chavePrimaria == listaChave[p])
+				{
+					printf("essa chave já existe\n");
+					printf("digite outra chave\n");
+					i = i-1;
+				}
+			}
+			getchar();
+		}
+		else{
+			fprintf(arquivo, "%d", chavePrimaria);
+			fprintf(arquivo, " |");
+			fgets(listInformation[i], 100, stdin);
+			fprintf(arquivo, "%s", listInformation[i]);
+			fseek(arquivo, -1 , SEEK_CUR);
+			fprintf(arquivo, " |");
+		}
 	}
 
 	fprintf(arquivo, "\n");
 	fclose(arquivo);
+
+	for(i=0; i<colunas; i++){
+		free(listaAtributos[i]);
+	}
+	free(listaAtributos);
+
+	for(i=0; i<colunas; i++){
+		free(listInformation[i]);
+	}
+	free(listInformation);
 	
 	return;
 }

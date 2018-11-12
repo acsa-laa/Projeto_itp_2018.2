@@ -20,6 +20,6 @@ char **alocar_char(int colunas);
 void receber_quantColuna(int colunas, FILE * arquivo);
 void criandoTabela(char nomeArquivo[100]);
 void receber_atributos(char **listAtributos, int colunas, FILE *arquivo);
-void declarar_tipo(int *ponteiroTipo, int colunas);
+void declarar_tipo(int *ponteiroTipo, int colunas, FILE * arquivo);
 
 #endif
