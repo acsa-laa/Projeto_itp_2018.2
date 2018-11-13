@@ -1,4 +1,4 @@
 colunas:3,
 id |nome |temporadas |
 1,4,1,|
-2 |2 |scorpion |4 |
+2 |scorpion |4 |

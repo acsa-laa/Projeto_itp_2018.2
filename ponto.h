@@ -14,6 +14,9 @@ typedef struct tipos{
 void criar_tabela();
 void listar_tabela();
 void criar_novaLinha();
+void listar_dadosTabela();
+void apagar_linhaTabela();
+void apagar_tabela();
 int lendoTabelas(char nomeArquivo[100]);
 int *alocar_int(int colunas);
 char **alocar_char(int colunas);

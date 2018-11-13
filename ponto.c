@@ -95,6 +95,22 @@ char **alocar_char(int colunas){
 
 }
 
+int get_size()
+{
+    FILE *file = fopen("tabelas.TXT", "r");
+
+    if (file == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return 0;
+	}
+
+    fseek(file, 0, SEEK_END);
+    int size = ftell(file);
+    fclose(file);
+
+    return size;
+}
 
 int lendoTabelas(char nomeArquivo[100]){
 	int i=0;
@@ -103,17 +119,19 @@ int lendoTabelas(char nomeArquivo[100]){
 
 	char * ptr_palavra;
 	
+	if(get_size() == 0)
+	{
+	    printf("O arquivo esta vazio.\n");
+	    return 0;
+	}
+
 	FILE * todosArquivos;
 	todosArquivos = fopen("tabelas.TXT", "r+");
-	if (todosArquivos == NULL)
-	{
-		printf("erro na abertura do arquivo\n");
-		return -1;
-	}
+
 	do{
 		i++;
-		fgets(linha, 100,todosArquivos);
-		
+		fgets(linha, 100, todosArquivos);
+
 		ptr_palavra = strpbrk (linha, " ");
 
 		if (strcmp(ptr_palavra+1, nomeArquivo) == 0){
@@ -223,6 +241,8 @@ void declarar_tipo(int *ponteiroTipo, int colunas,FILE *arquivo){
 
 void listar_tabela(){
 
+	int i,j;
+	j = 0;
 	char linha[100];
 	char * ptr_palavra;
 	
@@ -235,11 +255,19 @@ void listar_tabela(){
 	}
 
 	while(!feof(todosArquivos)){
-
+		j++;
 		fgets(linha, 100,todosArquivos);
-		//printf("%s", linha);
+	}
+
+	fseek(todosArquivos, 0, SEEK_SET);
+
+	for (i = 0; i < j-1; i++)
+	{
+		fgets(linha, 100,todosArquivos);
+
 		ptr_palavra = strpbrk (linha, " ");
-		printf("%s", ptr_palavra);
+
+		printf("%s", ptr_palavra+1);
 	}
 
     fclose(todosArquivos);
@@ -249,10 +277,11 @@ void listar_tabela(){
 
 void criar_novaLinha()
 {
-	int colunas,i,p,j,controle;
+	int colunas,i,p,j,controle,repet;
+	repet = 0;
 	FILE * arquivo;
 	int chavePrimaria;
-	int listaChave[100];
+	int listaChave[100] = {0};
 	char lixo[100];
 	char listaTipos[100];
 	char **listaAtributos;
@@ -291,7 +320,7 @@ void criar_novaLinha()
 	}
 	fseek(arquivo, 1, SEEK_CUR);
 
-	fgets(listaTipos, 100, arquivo);
+	fscanf(arquivo, "%s|", listaTipos);
 
 	j = 0;
 	while(!feof(arquivo)){
@@ -300,7 +329,8 @@ void criar_novaLinha()
 		j++;
 	}
 
-	fseek(arquivo, 0 , SEEK_END);
+
+	//fseek(arquivo, 0 , SEEK_END);
 
 	if (arquivo == NULL)
 	{
@@ -311,23 +341,30 @@ void criar_novaLinha()
 	for (i = 0; i < colunas; i++)
 	{
 		printf("digite %s:\n", listaAtributos[i]);
-		if (i == 0)
-		{
+		if (i == 0){
 			fscanf(stdin, "%d", &chavePrimaria);
+			getchar();
 			for (p = 0; p < j; p++)
 			{
 				if (chavePrimaria == listaChave[p])
 				{
 					printf("essa chave já existe\n");
 					printf("digite outra chave\n");
-					i = i-1;
+					repet = 1;
 				}
 			}
-			getchar();
+			if (repet == 1)
+			{
+				i = i-1;
+				repet = 0;
+			}
+			else
+			{
+				fprintf(arquivo, "%d", chavePrimaria);
+				fprintf(arquivo, " |");
+			}
 		}
 		else{
-			fprintf(arquivo, "%d", chavePrimaria);
-			fprintf(arquivo, " |");
 			fgets(listInformation[i], 100, stdin);
 			fprintf(arquivo, "%s", listInformation[i]);
 			fseek(arquivo, -1 , SEEK_CUR);
@@ -348,5 +385,210 @@ void criar_novaLinha()
 	}
 	free(listInformation);
 	
+	return;
+}
+
+void listar_dadosTabela(){
+
+	int colunas,i,j,controle;
+	FILE * arquivo;
+	char **listaAtributos;
+	char listaTipos[100];
+	char nomeTabela[100];
+
+
+	printf("Nome da tabela?\n");
+	fgets(nomeTabela, 100, stdin);
+
+	controle = lendoTabelas(nomeTabela);
+	if (controle == 0)
+	{
+		printf("essa tabela não existe!\n");
+		return;
+	}
+
+	strcat(nomeTabela,".TXT");
+
+	arquivo = fopen(nomeTabela,"r+");
+
+	if (arquivo == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+
+	fscanf(arquivo,"colunas:%d,", &colunas);
+
+	listaAtributos = alocar_char(colunas*100);
+
+	fseek(arquivo, 1, SEEK_CUR);
+
+	fgets(listaAtributos[0], 100, arquivo);
+
+	fgets(listaTipos, 100, arquivo);
+
+	j = 0;
+	while(!feof(arquivo)){
+		j++;
+		fgets(listaAtributos[j], 100, arquivo);
+	}
+
+	for (i = 0; i < j; i++)
+	{
+		printf("%s", listaAtributos[i]);
+	}
+
+	fclose(arquivo);
+	for(i=0; i<colunas; i++){
+		free(listaAtributos[i]);
+	}
+	free(listaAtributos);
+	
+	return;
+}
+
+//falta a 5
+
+void apagar_linhaTabela(){
+
+	int i,j,controle,key,chaveP;
+	j=0;
+	char nomeTabela[100];
+	char linha[100];
+	FILE * todosArquivos;
+	FILE * novoArquivo;
+	char indices[100];
+	char * nova;
+
+	nova = "transição.TXT";
+
+	printf("Qual o nome da tabela?\n");
+	fgets(nomeTabela,100,stdin);
+
+	controle = lendoTabelas(nomeTabela);
+
+	if (controle == 0)
+	{
+		printf("essa tabela não existe\n");
+		return;
+	}
+
+	printf("Qual a chave primária da linha?\n");
+	scanf("%d", &chaveP);
+	getchar();
+
+	strcat(nomeTabela,".TXT");
+
+	todosArquivos = fopen(nomeTabela, "r");
+	novoArquivo = fopen(nova, "w");
+	
+	if (todosArquivos == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+
+	if (novoArquivo == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+
+	while(!feof(todosArquivos)){
+		j++;
+		fgets(linha, 100,todosArquivos);
+	}
+
+	fseek(todosArquivos, 0, SEEK_SET);
+
+	for (i = 0; i < 3; i++)
+	{
+		fgets(indices, 100, todosArquivos);
+		fprintf(novoArquivo, "%s", indices);
+
+	}
+	
+	for (i = 0; i < j-4; i++)
+	{
+		fscanf(todosArquivos, "%d |", &key);
+		fgets(linha, 100, todosArquivos);
+	
+		if (key != chaveP)
+		{
+			fprintf(novoArquivo,"%d |", key);
+			fprintf(novoArquivo, "%s", linha);
+		}
+	}
+	remove(nomeTabela);
+	rename(nova, nomeTabela);
+	fclose(novoArquivo);
+	return;
+}
+
+void apagar_tabela(){
+
+	int i,j,controle;
+	j=0;
+	char nomeTabela[100];
+	char linha[100];
+	char * ptr_palavra;
+	char **listaTabelas;
+	FILE * todosArquivos;
+	FILE * novoArquivo;
+	char * tabela;
+	char * nova;
+
+	listaTabelas = alocar_char(1000);
+
+	tabela = "tabelas.TXT";
+	nova = "transição.TXT";
+
+	printf("Qual o nome da tabela que deseja apagar?\n");
+	fgets(nomeTabela,100,stdin);
+
+	controle = lendoTabelas(nomeTabela);
+
+	if (controle == 0)
+	{
+		printf("essa tabela não existe\n");
+		return;
+	}
+
+	todosArquivos = fopen(tabela, "r");
+	novoArquivo = fopen(nova, "w");
+	
+	if (todosArquivos == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+
+	while(!feof(todosArquivos)){
+		j++;
+		fgets(linha, 100,todosArquivos);
+	}
+
+	fseek(todosArquivos, 0, SEEK_SET);
+
+	for (i = 0; i < j-1; i++)
+	{
+		fgets(linha, 100,todosArquivos);
+
+		ptr_palavra = strpbrk (linha, " ");
+
+		if (strcmp(ptr_palavra+1, nomeTabela) != 0)
+		{
+			fprintf(novoArquivo, "Nome: %s", ptr_palavra+1);
+		}
+	}
+
+	strcat(nomeTabela,".TXT");
+
+	remove(nomeTabela);
+	remove(tabela);
+	rename(nova, tabela);
+
+	fclose(novoArquivo);
+
 	return;
 }
