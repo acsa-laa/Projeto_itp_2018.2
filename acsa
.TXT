@@ -1,3 +1,0 @@
-colunas:3,
-codigo |nome |idade |
-1,4,1,|

@@ -1,5 +1,0 @@
-colunas:2,
-chato |nome |
-1,4,|
-10 |joao_pogchamp |
-4 |kjhjyhf |
