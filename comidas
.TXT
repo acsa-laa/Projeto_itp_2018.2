@@ -1,5 +1,0 @@
-colunas:2,
-id |nome |
-1,4,|
-1 |café |
-2 |cenoura |
