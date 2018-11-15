@@ -1,4 +1,0 @@
-colunas:3,
-id |nome |temporadas |
-1,4,1,|
-2 |scorpion |4 |
