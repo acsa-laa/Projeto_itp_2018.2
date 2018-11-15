@@ -15,6 +15,9 @@ void criar_tabela()
 
 	getchar();
 
+
+	printf("\nPara nomes compostos (mais de uma palavra), use _ como espaço!\n\n");
+
 	printf("Qual o nome da tabela ou do arquivo:\n");
 	fgets(nomeArquivo, 100, stdin);
 
@@ -101,7 +104,7 @@ int get_size()
 
     if (file == NULL)
 	{
-		printf("erro na abertura do arquivo\n");
+		printf("erro na abertura do arquivo ou o arquivo não existe!\n");
 		return 0;
 	}
 
@@ -163,16 +166,16 @@ void receber_quantColuna(int colunas, FILE * arquivo){
 
 void receber_atributos(char **listAtributos, int colunas, FILE *arquivo){
 	int i,j;
-	printf("Os atributos devem ter nome simples\n");
+	printf("\nPara nomes compostos (mais de uma palavra), use _ como espaço!\n\n");
 
 	for (i = 0; i < colunas; i++)
 	{	
 		if (i == 0)
 		{
-			printf("Qual o nome da chave primária (obrigatoriamente ela deve ser um número inteiro positivo):\n");
+			printf("Qual o nome da chave primária?\n(obrigatoriamente ela deve ser um número inteiro positivo):\n");
 		}
 		else{
-			printf("digite o %d atributo\n", i+1);
+			printf("digite o nome do %d atributo\n", i+1);
 		}
 		fgets(listAtributos[i], 100, stdin);
 		fprintf(arquivo, "%s", listAtributos[i]);
@@ -201,7 +204,7 @@ void declarar_tipo(int *ponteiroTipo, int colunas,FILE *arquivo){
 			ponteiroTipo[i] = 1;
 		}
 		else{
-			printf("tipo do %d atributo: \n", i+1);
+			printf("\ntipo do %d atributo: \n", i+1);
 			scanf("%d", &tipo);
 
 			switch (tipo)
