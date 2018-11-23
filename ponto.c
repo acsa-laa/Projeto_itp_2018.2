@@ -393,10 +393,10 @@ void criar_novaLinha()
 
 void listar_dadosTabela(){
 
-	int colunas,i,j,controle;
+	int colunas,i,j,k,p,controle, tamanhoString, quantidadeSpace;
 	FILE * arquivo;
 	char **listaAtributos;
-	char listaTipos[100];
+	char listaTipos[100], string[100];
 	char nomeTabela[100];
 
 
@@ -436,9 +436,59 @@ void listar_dadosTabela(){
 		fgets(listaAtributos[j], 100, arquivo);
 	}
 
-	for (i = 0; i < j; i++)
+	fseek(arquivo, 0, SEEK_SET);
+	for (i = 0; i < 4; i++)
 	{
-		printf("%s", listaAtributos[i]);
+		if (i==1)
+		{
+			for (k = 0; k < colunas; k++)
+			{
+				fscanf(arquivo,"%s |", string);
+				tamanhoString = 0;
+				quantidadeSpace= 0;
+				tamanhoString = strlen(string);
+		    	quantidadeSpace = 15 - tamanhoString;
+						
+				printf("%s", string);
+				for (p = 0; p < quantidadeSpace; p++)
+				{
+					printf(" ");
+				}
+			printf("|");
+			}
+	    	printf("\n");
+	    }
+		else{
+			fgets(listaAtributos[i], 100, arquivo);
+		}
+	}
+
+
+	for (i = 0; i < 16*colunas; i++)
+	{
+		printf("-");
+	}
+	printf("\n");
+
+
+	for (i = 0; i < j-1; i++){
+
+		for(k = 0; k < colunas; k++){
+	
+				fscanf(arquivo,"%s |", string);
+				tamanhoString = 0;
+				quantidadeSpace= 0;
+				tamanhoString = strlen(string);
+		    	quantidadeSpace = 15 - tamanhoString;
+						
+						printf("%s", string);
+						for (p = 0; p < quantidadeSpace; p++)
+						{
+							printf(" ");
+						}
+				printf("|");
+			}
+		printf("\n");
 	}
 
 	fclose(arquivo);
