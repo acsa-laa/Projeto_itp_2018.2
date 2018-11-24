@@ -10,7 +10,7 @@ int main()
 
 	
 	do{	
-		printf("-digite 1 para criar tabela\n-digite 2 para listar tabelas\n-digite 3 para criar nova linha na tabela\n-digite 4 para listar todos os dados de uma tabela\n-digite 6 para apagar a linha de uma tabela\n-digite 7 para pagar uma tabela\n");
+		printf("-digite 1 para criar tabela\n-digite 2 para listar tabelas\n-digite 3 para criar nova linha na tabela\n-digite 4 para listar todos os dados de uma tabela\n-digite 5 para procurar um valor na tabela\n-digite 6 para apagar a linha de uma tabela\n-digite 7 para pagar uma tabela\n");
 		scanf("%d", &escolha);
 		switch (escolha)
 			{
@@ -33,7 +33,8 @@ int main()
    					break;
 
    				case 5:
-   					printf("ainda não está pronto\n");
+                  getchar();
+                  procurar_valor();
    					break;
 
    				case 6:
