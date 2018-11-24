@@ -500,7 +500,1477 @@ void listar_dadosTabela(){
 	return;
 }
 
-//falta a 5
+void procurar_valor(){
+	int controle, i, colunas, escolha, pesquisa,  j = 0;
+	char nomeTabela[100];
+	char atributo[100];
+	char linha[100];
+	int *tipos;
+	char lixo[100];
+
+	TIPOS variavel;
+	FILE *lerTabela;
+	
+	printf("Informe o nome da tabela\n");
+	fgets(nomeTabela,100,stdin);
+
+	controle = lendoTabelas(nomeTabela);
+
+	if (controle == 0)
+	{
+		printf("essa tabela não existe\n");
+		return;
+	}
+	else{
+		strcat(nomeTabela,".TXT");
+	}
+
+	lerTabela = fopen(nomeTabela, "r");
+
+	if (lerTabela == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+	
+	fscanf(lerTabela,"colunas:%d,", &colunas);
+	
+	tipos = alocar_int(colunas*100);
+
+	printf("As colunas disponíveis são:\n");
+	for (i = 0; i < colunas; i++){
+		fscanf(lerTabela, "%s |", atributo);
+		
+		printf("%d - %s\n",i+1, atributo);
+	}
+
+	printf("Digite o numero da coluna que deseja pesquisar\n");
+	scanf("%d", &escolha);
+	for (i = 0; i < colunas; i++){
+		fscanf(lerTabela, "%d,", &tipos[i]);
+	}
+
+	fseek(lerTabela, 2, SEEK_CUR);
+
+	while(! feof(lerTabela)){
+
+		
+		fgets(linha, 100,lerTabela);
+		j++;
+
+	}
+	fseek(lerTabela, 0, SEEK_SET);
+	j = j-1;
+
+	for(i = 0; i < 3; i++){
+		fgets(lixo, 100, lerTabela);
+	}
+
+	printf("Digite o valor para pesquisar\n");
+	
+	switch (tipos[escolha-1]){
+		case 1:
+			scanf("%lu", &variavel.inteiro);
+			break;
+		case 2:
+			scanf("%f", &variavel.decimal);
+			break;
+		case 3:
+			scanf(" %c", &variavel.caractere);
+			break;
+		case 4:
+			scanf("%s", variavel.string);
+			break;
+		default:
+			printf("Valor invalido");
+			break;
+
+	}
+
+	printf("1 - valores maior que o informado\n");
+	printf("2 - valores maior ou igual que o valor informado\n");
+	printf("3 - valores igual o valor informado\n");
+	printf("4 - valores menor que o valor informado\n");
+	printf("5 - valores menor ou igual que o valor informado\n");
+	printf("6 - valores próximo ao valor informado (apenas se a coluna for do tipo string)\n");
+	scanf("%d", &pesquisa);
+
+	switch (pesquisa){
+		case 1:
+			procurar_maior(lerTabela, variavel, tipos[escolha-1], j, colunas, escolha);
+			break;
+		case 2:
+			procurar_maior_igual(lerTabela, variavel, tipos[escolha-1], j, colunas, escolha);
+			break;
+
+		case 3:
+			procurar_igual(lerTabela, variavel, tipos[escolha-1], j, colunas, escolha);
+			break;
+
+		case 4:
+			procurar_menor(lerTabela, variavel, tipos[escolha-1], j, colunas, escolha);
+			break;
+
+		case 5:
+			procurar_menor_igual(lerTabela, variavel, tipos[escolha-1], j, colunas, escolha);
+			break;
+		case 6:
+			procurar_aproximado(lerTabela, variavel, tipos[escolha-1], j, colunas, escolha);
+			break;
+		default:
+			printf("Valor invalido");
+			break;
+
+	}
+	fclose(lerTabela);
+	
+	free(tipos);
+}
+
+void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
+	int i, m, constante, valores = 0, cont = 0, aux = 0;
+	unsigned long int caso1, listaValor1[linhas];
+	float caso2, listaValor2[linhas];
+	char caso3, listaValor3[linhas];
+	char *caso4, **listaValor4;
+	char **linhaToda;
+
+	linhaToda = alocar_char(colunas *100);
+	
+	caso4 = (char*) malloc(linhas*colunas*sizeof(char));
+	if (caso4 == NULL)
+	{
+		printf("erro de alocação!\n");
+	}
+
+	listaValor4 = alocar_char(linhas*colunas);
+	char lixo[100];
+	printf("\n");
+	
+	switch (escolhat){
+		case 1:
+			caso1 = variavel.inteiro;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%lu |", &listaValor1[cont]);
+						cont++;
+					}
+					else{
+					fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] > caso1){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] > caso1){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores maiores\n");
+			}
+			break;
+
+		case 2:
+			caso2 = variavel.decimal;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%f |", &listaValor2[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor2[i] > caso2){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor2[i] > caso2){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores maiores\n");
+			}
+			break;
+
+		case 3:
+			caso3 = variavel.caractere;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%c |", &listaValor3[cont]);
+						
+						if ((listaValor3[cont] >= 'A') && (listaValor3[cont] <= 'Z')){
+							listaValor3[cont] += 32;
+						}
+						cont++;
+					}
+					else{
+						
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor3[i] > caso3){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor3[i] > caso3){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores maiores\n");
+			}
+			break;
+
+
+		case 4:
+			caso4 = variavel.string;
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%s |", listaValor4[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+				
+
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante>0){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante>0){
+					printf("%s\n", linhaToda[i]);
+				
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores maiores\n");
+			}
+			break;
+
+		
+		default:
+			printf("Valor inválido!\n");
+			break;	
+	}
+
+}
+
+void procurar_maior_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
+	int i, m, constante, valores = 0, cont = 0, aux = 0;
+	unsigned long int caso1, listaValor1[linhas];
+	float caso2, listaValor2[linhas];
+	char caso3, listaValor3[linhas];
+	char *caso4, **listaValor4;
+	char **linhaToda;
+
+	linhaToda = alocar_char(colunas *100);
+	
+	caso4 = (char*) malloc(linhas*colunas*sizeof(char));
+	if (caso4 == NULL)
+	{
+		printf("erro de alocação!\n");
+	}
+
+	listaValor4 = alocar_char(linhas*colunas);
+	char lixo[100];
+	printf("\n");
+	switch (escolhat){
+		case 1:
+			caso1 = variavel.inteiro;
+			
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%lu |", &listaValor1[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			
+			fseek(arquivo,0,SEEK_SET);
+			
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] >= caso1){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+			
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] >= caso1){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores maiores ou iguais\n");
+			}
+			break;
+
+		case 2:
+			caso2 = variavel.decimal;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%f |", &listaValor2[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+
+			fseek(arquivo,0,SEEK_SET);
+			
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor2[i] >= caso2){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+			
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] >= caso1){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores maiores ou iguais\n");
+			}
+			break;
+
+
+
+		case 3:
+			caso3 = variavel.caractere;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%c |", &listaValor3[cont]);
+						
+						if ((listaValor3[cont] >= 'A') && (listaValor3[cont] <= 'Z')){
+							listaValor3[cont] += 32;	
+						}
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			
+			fseek(arquivo,0,SEEK_SET);
+			
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor3[i] >= caso3){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+			
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor3[i] >= caso3){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores maiores ou iguais\n");
+			}
+			break;
+
+
+
+		case 4:
+			caso4 = variavel.string;
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%s |", listaValor4[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			
+			fseek(arquivo,0,SEEK_SET);
+			
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante>=0){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+			
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante>=0){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores maiores ou iguais\n");
+			}
+			break;
+
+
+		
+		default:
+			printf("Valor inválido!\n");
+			break;		
+	}
+
+}
+
+void procurar_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
+	int i, m, constante, valores = 0,cont = 0, aux = 0;
+	unsigned long int caso1, listaValor1[linhas];
+	float caso2, listaValor2[linhas];
+	char caso3,listaValor3[linhas];
+	char *caso4, **listaValor4;
+	char **linhaToda;
+
+	linhaToda = alocar_char(colunas *100);
+	
+	caso4 = (char*) malloc(linhas*colunas*sizeof(char));
+	if (caso4 == NULL)
+	{
+		printf("erro de alocação!\n");
+	}
+
+	listaValor4 = alocar_char(linhas*colunas);
+	char lixo[100];
+	printf("\n");
+	switch (escolhat){
+		case 1:
+			caso1 = variavel.inteiro;
+			
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%lu |", &listaValor1[cont]);
+						cont++;
+						
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] == caso1){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] == caso1){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores iguais\n");
+			}
+			break;
+
+		case 2:
+			caso2 = variavel.decimal;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%f |", &listaValor2[cont]);
+						cont++;	
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor2[i] == caso2){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor2[i] == caso2){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores iguais\n");
+			}
+			break;
+
+
+		case 3:
+			caso3 = variavel.caractere;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%c |", &listaValor3[cont]);
+						
+						if ((listaValor3[cont] >= 'A') && (listaValor3[cont] <= 'Z')){
+							listaValor3[cont] += 32;
+						}
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor3[i] == caso3){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor3[i] == caso3){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores iguais\n");
+			}
+			break;
+
+		case 4:
+			caso4 = variavel.string;
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%s |", listaValor4[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante==0){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante==0){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores iguais\n");
+			}
+			break;
+
+
+		default:
+			printf("Valor inválido!\n");
+			break;
+		
+	}
+
+}
+
+void procurar_menor(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
+	int i, m, constante, valores = 0, cont = 0, aux = 0;
+	unsigned long int caso1, listaValor1[linhas];
+	float caso2, listaValor2[linhas];
+	char caso3,listaValor3[linhas];
+	char *caso4, **listaValor4;
+	char **linhaToda;
+
+	linhaToda = alocar_char(colunas *100);
+	
+	caso4 = (char*) malloc(linhas*colunas*sizeof(char));
+	
+	if (caso4 == NULL)
+	{
+		printf("erro de alocação!\n");
+	}
+
+	listaValor4 = alocar_char(linhas*colunas);
+	char lixo[100];
+	printf("\n");
+	switch (escolhat){
+		case 1:
+			caso1 = variavel.inteiro;
+			
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%lu |", &listaValor1[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] < caso1){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] < caso1){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores menores\n");
+			}
+			break;
+
+		case 2:
+			caso2 = variavel.decimal;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%f |", &listaValor2[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor2[i] < caso2){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor2[i] < caso2){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores menores\n");
+			}
+			break;
+
+		case 3:
+			caso3 = variavel.caractere;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%c |", &listaValor3[cont]);
+						if ((listaValor3[cont] >= 'A') && (listaValor3[cont] <= 'Z')){
+							listaValor3[cont] += 32;	
+						}
+						cont++;	
+					}
+					else{
+						
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor3[i] < caso3){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor3[i] < caso3){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores menores\n");
+			}
+			break;
+
+		case 4:
+			caso4 = variavel.string;
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%s |", listaValor4[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+				
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante<0){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante<0){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores menores\n");
+			}
+			break;
+		default:
+			printf("Valor inválido!\n");
+			break;
+	}
+
+}
+
+void procurar_menor_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
+	int i, m, constante, valores = 0, cont = 0, aux = 0;
+	unsigned long int caso1, listaValor1[linhas];
+	float caso2, listaValor2[linhas];
+	char caso3,listaValor3[linhas];
+	char *caso4, **listaValor4;
+	char **linhaToda;
+
+	linhaToda = alocar_char(colunas *100);
+	
+	caso4 = (char*) malloc(linhas*colunas*sizeof(char));
+	if (caso4 == NULL)
+	{
+		printf("erro de alocação!\n");
+	}
+
+	listaValor4 = alocar_char(linhas*colunas);
+	char lixo[100];
+	printf("\n");
+	switch (escolhat){
+		case 1:
+			caso1 = variavel.inteiro;
+			
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%lu |", &listaValor1[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] <= caso1){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor1[i] <= caso1){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores menores ou iguais\n");
+			}
+			break;
+
+		case 2:
+			caso2 = variavel.decimal;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%f |", &listaValor2[cont]);
+						cont++;
+					}
+					else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor2[i] <= caso2){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor2[i] <= caso2){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores menores ou iguais\n");
+			}
+			break;
+
+		case 3:
+			caso3 = variavel.caractere;
+
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%c |", &listaValor3[cont]);
+						
+						if ((listaValor3[cont] >= 'A') && (listaValor3[cont] <= 'Z')){
+							listaValor3[cont] += 32;		
+						}
+						cont++;
+					}
+					else{
+						
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+			
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor3[i] <= caso3){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+			for (i = 0; i < linhas; i++)
+			{
+				if (listaValor3[i] <= caso3){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores menores ou iguais\n");
+			}
+			break;
+
+		case 4:
+			caso4 = variavel.string;
+			for (m = 0; m < linhas; m++)
+			{
+				for (i = 0; i < colunas; i++)
+				{
+					if (i == (escolhaAtributo-1))
+					{
+						fscanf(arquivo, "%s |", listaValor4[cont]);
+						cont++;
+					}
+						else{
+						fscanf(arquivo, "%s |", lixo);
+					}
+				}
+			}
+				
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante<=0){
+					printf("%s\n", listaValor4[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores menores ou iguais\n");
+			}
+			break;
+
+			fseek(arquivo,0,SEEK_SET);
+
+			for (i = 0; i < 3; i++)
+			{
+				fgets(lixo, 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				fgets(linhaToda[i], 100, arquivo);
+			}
+
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante<=0){
+					valores++;
+				}
+			}
+			
+			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
+
+			for (i = 0; i < linhas; i++)
+			{
+				constante = strcmp(listaValor4[i], caso4);
+				if (constante<=0){
+					printf("%s\n", linhaToda[i]);
+				}
+				else{
+					aux++;
+				}
+			}
+			if (aux == linhas){
+				printf("Não há valores menores ou iguais\n");
+			}
+			break;
+
+		default:
+			printf("Valor inválido!\n");
+			break;
+	}
+}
+
+void procurar_aproximado(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
+	int i, m, constante, valores = 0, cont = 0, aux = 0;
+	char *caso4, **listaValor4;
+	char **linhaToda;
+
+	linhaToda = alocar_char(colunas *100);
+
+	caso4 = (char*) malloc(linhas*colunas*sizeof(char));
+	if (caso4 == NULL)
+	{
+		printf("erro de alocação!\n");
+	}
+
+	listaValor4 = alocar_char(linhas*colunas);
+	char lixo[100];
+	printf("\n");
+	if (escolhat == 4){
+		caso4 = variavel.string;
+		for (m = 0; m < linhas; m++)
+		{
+			for (i = 0; i < colunas; i++)
+			{
+				if (i == (escolhaAtributo-1))
+				{
+					fscanf(arquivo, "%s |", listaValor4[cont]);
+					cont++;
+				}
+					else{
+					fscanf(arquivo, "%s |", lixo);
+				}
+			}
+		}
+	}
+
+	fseek(arquivo,0,SEEK_SET);
+	for (i = 0; i < 3; i++)
+	{
+		fgets(lixo,100,arquivo);
+	}
+	for (i = 0; i < linhas; i++)
+	{
+		fgets(linhaToda[i], 100, arquivo);
+	}
+
+	int tam[linhas];
+	int tam_palavra;
+	tam_palavra = strlen(caso4);
+	int iguais = 0;
+	int verificar = 0;
+	char **listaParecidos;
+	listaParecidos = alocar_char(colunas*100);
+		
+	for (i = 0; i < linhas; i++)
+	{
+		tam[i] = strlen(listaValor4[i]);	
+	}
+	for (m = 0; m < linhas; m++)
+	{
+		for (i = 0; i < tam_palavra; i++)
+		{
+			if(caso4[i] == listaValor4[m][i]){
+				iguais++;	
+			}						
+		}
+		if(iguais >= (tam_palavra/2)){
+			strcpy(listaParecidos[verificar], linhaToda[m]);
+			verificar++;
+		}
+	
+		iguais = 0;
+	}
+
+	printf("Existe %d valor(es) para o que voce quer:\n\n", verificar);
+		
+	for (i = 0; i < verificar; ++i)
+	{
+		printf("%s", listaParecidos[i]);	
+	}
+	if (verificar == 0){
+		printf("Não há valores aproximados\n");
+	}		
+	else{
+		printf("Essa coluna não é string");
+	}
+}
 
 void apagar_linhaTabela(){
 
