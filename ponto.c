@@ -1,4 +1,3 @@
-
 #include "ponto.h"
 
 //primeiro ponto.
@@ -2143,6 +2142,237 @@ void apagar_tabela(){
 	remove(tabela);
 	rename(nova, tabela);
 
+	fclose(novoArquivo);
+
+	return;
+}
+
+//extra.
+
+void criar_novaColuna()
+{
+	//criar uma coluna em uma tabela que já existe.
+
+	int col,j,i,tipo,controle;
+	j=0;
+	char nomeTabela[100];
+	char linha[100];
+	FILE * todosArquivos;
+	FILE * novoArquivo;
+	char atributo[100];
+	char * nova;
+
+	nova = "transição.TXT";
+
+	printf("Qual o nome da tabela?\n");
+	fgets(nomeTabela,100,stdin);
+
+	controle = lendoTabelas(nomeTabela);
+
+	if (controle == 0)
+	{
+		printf("essa tabela não existe\n");
+		return;
+	}
+
+	strcat(nomeTabela,".TXT");
+
+	todosArquivos = fopen(nomeTabela, "r");
+	novoArquivo = fopen(nova, "w");
+	
+	if (todosArquivos == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+
+	if (novoArquivo == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+
+	while(!feof(todosArquivos)){
+		fgets(linha, 100,todosArquivos);
+		j++;
+	}
+
+	fseek(todosArquivos, 0, SEEK_SET);
+
+//acrescentando a quantidade
+
+	fscanf(todosArquivos,"colunas:%d,", &col);
+	col = col+1;		
+	fprintf(novoArquivo, "colunas:%d,", col);
+	fprintf(novoArquivo, "\n");
+//acrescentando o nome
+	for (i = 0; i < col-1; i++)
+	{
+		fscanf(todosArquivos,"%s |", atributo);
+		fprintf(novoArquivo, "%s |", atributo);
+	}
+
+	printf("qual será o nome da coluna?\n");
+	scanf("%s", atributo);
+
+	fprintf(novoArquivo, "%s", atributo);
+	fprintf(novoArquivo, " |\n");
+
+	for (i = 0; i < col-1; i++)
+	{
+		fscanf(todosArquivos, "%d,", &tipo);
+		fprintf(novoArquivo, "%d,", tipo);	
+	}
+
+	printf("\nTipos dos atributos:\ndigite 1 para inteiro\ndigite 2 para double\ndigite 3 para char\ndigite 4 para string\n");
+	printf("qual o tipo desse novo atributo?\n");
+	scanf("%d", &tipo);
+
+	fprintf(novoArquivo, "%d,|", tipo);
+	fprintf(novoArquivo, "\n");
+//pegando lixo
+	fgets(atributo, 100, todosArquivos);
+	
+	for (i = 0; i < j-4; i++)
+	{
+		fgets(atributo, 100, todosArquivos);
+		printf("%s\n", atributo);
+		fprintf(novoArquivo, "%s", atributo);
+		fseek(novoArquivo, -1, SEEK_CUR);
+		fprintf(novoArquivo, "0 |");
+	}
+
+	remove(nomeTabela);
+	rename(nova, nomeTabela);
+	fclose(novoArquivo);
+
+	return;
+}
+
+void apagar_coluna(){
+	
+	//apagar uma coluna que existe em uma tabela.
+
+	int col,j,i,k,tipo,controle,coluna;
+	j=0;
+	char nomeTabela[100];
+	char linha[100];
+	FILE * todosArquivos;
+	FILE * novoArquivo;
+	char atributo[100];
+	char * nova;
+
+	nova = "transição.TXT";
+
+	printf("Qual o nome da tabela?\n");
+	fgets(nomeTabela,100,stdin);
+
+	controle = lendoTabelas(nomeTabela);
+
+	if (controle == 0)
+	{
+		printf("essa tabela não existe\n");
+		return;
+	}
+
+	strcat(nomeTabela,".TXT");
+
+	todosArquivos = fopen(nomeTabela, "r");
+	novoArquivo = fopen(nova, "w");
+	
+	if (todosArquivos == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+
+	if (novoArquivo == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+
+	while(!feof(todosArquivos)){
+		fgets(linha, 100,todosArquivos);
+		j++;
+	}
+
+	fseek(todosArquivos, 0, SEEK_SET);
+
+//acrescentando a quantidade
+
+	fscanf(todosArquivos,"colunas:%d,", &col);
+	col = col-1;		
+	fprintf(novoArquivo, "colunas:%d,", col);
+	fprintf(novoArquivo, "\n");
+//acrescentando o nome
+	printf("A primeira coluna é a chave primária que não pode ser apagada\n");
+	printf("Existem essas colunas:\n");
+	for (i = 0; i < col+1; i++)
+	{
+		fscanf(todosArquivos,"%s |", atributo);
+		if (i == 0)
+		{
+			//faz nada
+		}
+		else{
+			printf("%d-%s\n", i+1, atributo);			
+		}
+	}
+	fseek(todosArquivos, 0, SEEK_SET);
+	fgets(atributo, 100, todosArquivos);
+	printf("qual o número da coluna que deseja apagar?\n");
+	scanf("%d", &coluna);
+
+	for (i = 0; i < col+1; i++)
+	{
+		fscanf(todosArquivos,"%s |", atributo);
+		if (i == coluna-1)
+		{
+			//faz nada;
+		}
+		else{
+			fprintf(novoArquivo, "%s |", atributo);
+		}
+	}
+
+	fprintf(novoArquivo,"\n");
+
+	for (i = 0; i < col+1; i++)
+	{
+		fscanf(todosArquivos, "%d,", &tipo);
+		if (i == coluna-1)
+		{
+			//faz nada;
+		}
+		else{
+			fprintf(novoArquivo, "%d,", tipo);
+		}	
+	}
+
+	fprintf(novoArquivo, "|");
+	fprintf(novoArquivo, "\n");
+//pegando lixo
+	fgets(atributo, 100, todosArquivos);
+//imprimindo na tabela as linhas sem o atributo excluído
+	for (i = 0; i < j-4; i++)
+	{
+		for (k = 0; k < col+1; k++)
+		{
+			fscanf(todosArquivos,"%s |", atributo);
+			if (k == coluna-1)
+			{
+				//faz nada;
+			}
+			else{
+				fprintf(novoArquivo, "%s |", atributo);
+			}
+		}
+		fprintf(novoArquivo, "\n");
+	}
+
+	remove(nomeTabela);
+	rename(nova, nomeTabela);
 	fclose(novoArquivo);
 
 	return;
