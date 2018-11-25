@@ -1,6 +1,7 @@
 #ifndef ponto_h
 
 #define ponto_h
+#include<locale.h>
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
@@ -18,6 +19,8 @@ void listar_dadosTabela();
 void apagar_linhaTabela();
 void apagar_tabela();
 void procurar_valor();
+void criar_novaColuna();
+void apagar_coluna();
 int lendoTabelas(char nomeArquivo[100]);
 int *alocar_int(int colunas);
 char **alocar_char(int colunas);
