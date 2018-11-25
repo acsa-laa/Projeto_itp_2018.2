@@ -1,9 +1,12 @@
 
 #include "ponto.h"
 
+//primeiro ponto.
+
 void criar_tabela()
 {
-	// atributos é a quantidade de atributos, tipo é o número que corresponde ao tipo,listaAtributos é a lista que vai receber os nomes dos atributos, listaTipos é a lista de atributos já com seu tipo.
+	// atributos é a quantidade de atributos, tipo é o número que corresponde ao tipo,listaAtributos é a lista que vai receber os nomes dos atributos, listaTipos é a lista de atributos já com seu tipo, nomeArquivo é o nome da tabela que vai ser criada.
+	//i,j,p e controle, são variáveis de auxílio. 
 
 	int atributos,i,j,tipo,p;
 	char chavePrimaria[100];
@@ -67,6 +70,8 @@ void criar_tabela()
 	return;
 }
 
+//funções para alocação.
+
 int * alocar_int(int colunas){
 	int *lisTipos;
 	lisTipos = (int*) malloc(colunas * sizeof(int));
@@ -97,6 +102,8 @@ char **alocar_char(int colunas){
 	return lisAtrib;
 
 }
+
+//função para verificar a existência de arquivo ou se o arquivo está vazio.
 
 int get_size()
 {
@@ -147,6 +154,8 @@ int lendoTabelas(char nomeArquivo[100]){
     fclose(todosArquivos);
     return 0;
 }
+
+//função para efetivamente criar a tabela se ela não existir.
 
 void criandoTabela(char nomeArquivo[100]){
 	FILE * todosArquivos;
@@ -242,7 +251,11 @@ void declarar_tipo(int *ponteiroTipo, int colunas,FILE *arquivo){
 
 }
 
+//segundo ponto.
+
 void listar_tabela(){
+
+	//ptr_palavra é um ponteiro que aponta para o ínicio dos nomes das tabelas dentro do arquivo, e linha é a variável que vai receber a linha completa.
 
 	int i,j;
 	j = 0;
@@ -277,9 +290,13 @@ void listar_tabela(){
     return;
 }
 
+//terceiro ponto.
 
 void criar_novaLinha()
 {
+	//colunas é a quantidade de colunas, listaChave vai receber as chaves já existentes, lixo é uma variável de auxílio para receber algo que não será usado no momento. 
+	//repet é a variavel usada para permite que se insira outro valor para a chave primária caso o anterior já exista, listaTipos é a lista com os tipos de cada atributo.
+	//listaAtributos a lista com os nomes dos atributos, e listInformation e a lista que vai receber as informações da linha.
 	int colunas,i,p,j,controle,repet;
 	repet = 0;
 	FILE * arquivo;
@@ -290,7 +307,6 @@ void criar_novaLinha()
 	char **listaAtributos;
 	char **listInformation;
 	char nomeTabela[100];
-	//TIPOS categoria;
 
 	printf("Nome da tabela?\n");
 	fgets(nomeTabela, 100, stdin);
@@ -331,9 +347,6 @@ void criar_novaLinha()
 		fgets(lixo, 100, arquivo);
 		j++;
 	}
-
-
-	//fseek(arquivo, 0 , SEEK_END);
 
 	if (arquivo == NULL)
 	{
@@ -391,7 +404,11 @@ void criar_novaLinha()
 	return;
 }
 
+// quarto ponto.
+
 void listar_dadosTabela(){
+
+	//tamanhoString é a variavel que receber o tamanho da string para poder ser subtraindo da constante 19 e dar origem a quantidade de espaços para serem impressos que é armazenados na quantidadeSpace.
 
 	int colunas,i,j,k,p,controle, tamanhoString, quantidadeSpace;
 	FILE * arquivo;
@@ -436,6 +453,8 @@ void listar_dadosTabela(){
 		fgets(listaAtributos[j], 100, arquivo);
 	}
 
+//imprmindo os atributos
+
 	fseek(arquivo, 0, SEEK_SET);
 	for (i = 0; i < 4; i++)
 	{
@@ -470,6 +489,7 @@ void listar_dadosTabela(){
 	}
 	printf("\n");
 
+//imprimindo as linhas
 
 	for (i = 0; i < j-1; i++){
 
@@ -499,6 +519,8 @@ void listar_dadosTabela(){
 	
 	return;
 }
+
+//quinto ponto.
 
 void procurar_valor(){
 	int controle, i, colunas, escolha, pesquisa,  j = 0;
@@ -1972,8 +1994,14 @@ void procurar_aproximado(FILE *arquivo, TIPOS variavel, int escolhat, int linhas
 	}
 }
 
+//sexto ponto.
+
 void apagar_linhaTabela(){
 
+//key recebe o valor das chavesprimarias que não serão apagadas e chaveP é a chave cuja linha será apagada.
+//todosArquivos é o arquivo da tabela que será apagada a linha, e novoArquivo é o arquivo que futuramente será a nova tabela (tabela sem a linha que foi apagada).
+//indices vai receber o que tem no arquivo que não faz parte de alguma linha.
+//nova é o nome do arquivo novo que futuramente será mudado para o nome da tabela.	
 	int i,j,controle,key,chaveP;
 	j=0;
 	char nomeTabela[100];
@@ -2048,7 +2076,11 @@ void apagar_linhaTabela(){
 	return;
 }
 
+//sétimo ponto.
+
 void apagar_tabela(){
+
+//funciona parecido com o anterior mas ao invés de apagar só a linha da tabela, apaga toda a tabela, e a linha do nome da tabela correspondente do arquivo que tem os nomes de todos as tabelas. 
 
 	int i,j,controle;
 	j=0;
