@@ -21,6 +21,7 @@ void apagar_tabela();
 void procurar_valor();
 void criar_novaColuna();
 void apagar_coluna();
+void alterar_valor();
 int lendoTabelas(char nomeArquivo[100]);
 int *alocar_int(int colunas);
 char **alocar_char(int colunas);
