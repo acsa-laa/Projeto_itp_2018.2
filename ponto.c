@@ -575,7 +575,6 @@ void procurar_valor(){
 
 	while(! feof(lerTabela)){
 
-		
 		fgets(linha, 100,lerTabela);
 		j++;
 
@@ -2363,6 +2362,139 @@ void apagar_coluna(){
 			if (k == coluna-1)
 			{
 				//faz nada;
+			}
+			else{
+				fprintf(novoArquivo, "%s |", atributo);
+			}
+		}
+		fprintf(novoArquivo, "\n");
+	}
+
+	remove(nomeTabela);
+	rename(nova, nomeTabela);
+	fclose(novoArquivo);
+
+	return;
+}
+
+void alterar_valor()
+{
+	//key é a chave que o usuário informar, chaveP são as chaves que tem no arquivo, coluna é o número correspondente a coluna que vai ser alterada 
+
+	int col,j,i,k,tipo,controle,coluna;
+	unsigned long int key,chaveP;
+	j=0;
+	char nomeTabela[100];
+	char linha[100];
+	char alterada[100];
+	FILE * todosArquivos;
+	FILE * novoArquivo;
+	char atributo[100];
+	char * nova;
+
+	nova = "transição.TXT";
+
+	printf("Qual o nome da tabela?\n");
+	fgets(nomeTabela,100,stdin);
+
+	controle = lendoTabelas(nomeTabela);
+
+	if (controle == 0)
+	{
+		printf("essa tabela não existe\n");
+		return;
+	}
+
+	strcat(nomeTabela,".TXT");
+
+	todosArquivos = fopen(nomeTabela, "r");
+	novoArquivo = fopen(nova, "w");
+	
+	if (todosArquivos == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+
+	if (novoArquivo == NULL)
+	{
+		printf("erro na abertura do arquivo\n");
+		return;
+	}
+
+	while(!feof(todosArquivos)){
+		fgets(linha, 100,todosArquivos);
+		j++;
+	}
+
+	fseek(todosArquivos, 0, SEEK_SET);
+
+//acrescentando a quantidade
+
+	fscanf(todosArquivos,"colunas:%d,", &col);		
+	fprintf(novoArquivo, "colunas:%d,", col);
+	fprintf(novoArquivo, "\n");
+
+	printf("A primeira coluna é a da chave primária que não pode ser alterada.\n");
+	printf("Existem essas colunas:\n");
+	
+	for (i = 0; i < col; i++)
+	{
+		fscanf(todosArquivos,"%s |", atributo);
+		if (i == 0)
+		{
+			//faz nada
+		}
+		else{
+			printf("%d-%s\n", i+1, atributo);			
+		}
+	}
+
+	fseek(todosArquivos, 0, SEEK_SET);
+	fgets(atributo, 100, todosArquivos);
+	printf("qual o número da coluna que deseja alterar na linha?\n");
+	scanf("%d", &coluna);
+	getchar();
+//imprimindo no arquivo
+	for (i = 0; i < col; i++)
+	{
+		fscanf(todosArquivos,"%s |", atributo);
+		fprintf(novoArquivo, "%s |", atributo);
+	}
+
+	fprintf(novoArquivo, "\n");
+
+	for (i = 0; i < col; i++)
+	{
+		fscanf(todosArquivos, "%d,", &tipo);
+		fprintf(novoArquivo, "%d,", tipo);	
+	}
+	fprintf(novoArquivo, "|");
+	fprintf(novoArquivo, "\n");
+//pegando lixo
+	fgets(atributo, 100, todosArquivos);
+
+	printf("Por gentileza para confirmar.\n");
+
+	listar_dadosTabela();	
+
+	printf("Digite a chave primária da linha que você quer alterar:\n");
+	scanf("%lu", &key);
+	getchar();
+	printf("Digite qual novo valor ou informação:\n");
+	scanf("%s", alterada);
+	
+	for (i = 0; i < j-4; i++)
+	{
+		fscanf(todosArquivos, "%lu |", &chaveP);
+		fprintf(novoArquivo,"%lu |", chaveP);
+		for (k = 0; k < col-1; k++)
+		{
+			fscanf(todosArquivos, "%s |", atributo);
+			if (chaveP == key && k == coluna-2)
+			{
+				fprintf(novoArquivo, "%s", alterada);
+				fprintf(novoArquivo, " |");
 			}
 			else{
 				fprintf(novoArquivo, "%s |", atributo);
