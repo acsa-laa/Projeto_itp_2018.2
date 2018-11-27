@@ -296,10 +296,12 @@ void criar_novaLinha()
 	//colunas é a quantidade de colunas, listaChave vai receber as chaves já existentes, lixo é uma variável de auxílio para receber algo que não será usado no momento. 
 	//repet é a variavel usada para permite que se insira outro valor para a chave primária caso o anterior já exista, listaTipos é a lista com os tipos de cada atributo.
 	//listaAtributos a lista com os nomes dos atributos, e listInformation e a lista que vai receber as informações da linha.
-	int colunas,i,p,j,controle,repet;
+	int colunas,i,p,j,controle,repet,erro;
 	repet = 0;
 	FILE * arquivo;
 	int chavePrimaria;
+	int * chaveP;
+	chaveP = &chavePrimaria;
 	int listaChave[100] = {0};
 	char lixo[100];
 	char listaTipos[100];
@@ -353,38 +355,42 @@ void criar_novaLinha()
 		return;
 	}
 
-	for (i = 0; i < colunas; i++)
+	for (i = 0; i < 1; i++)
 	{
-		printf("digite %s:\n", listaAtributos[i]);
-		if (i == 0){
-			fscanf(stdin, "%d", &chavePrimaria);
-			getchar();
-			for (p = 0; p < j; p++)
+		erro = verificar_chave(listaAtributos, chaveP);
+		if (erro == 1)
+		{
+			printf("Por favor recomece.\n");
+			return;
+		}
+	}
+
+	for (p = 0; p < j; p++)
+	{
+			if (chavePrimaria == listaChave[p])
 			{
-				if (chavePrimaria == listaChave[p])
-				{
-					printf("essa chave já existe\n");
-					printf("digite outra chave\n");
-					repet = 1;
-				}
+				printf("essa chave já existe\n");
+				printf("digite outra chave\n");
+				repet = 1;
 			}
 			if (repet == 1)
 			{
+				scanf("%d",&chavePrimaria);
 				i = i-1;
 				repet = 0;
 			}
-			else
-			{
-				fprintf(arquivo, "%d", chavePrimaria);
-				fprintf(arquivo, " |");
-			}
-		}
-		else{
-			fgets(listInformation[i], 100, stdin);
-			fprintf(arquivo, "%s", listInformation[i]);
-			fseek(arquivo, -1 , SEEK_CUR);
-			fprintf(arquivo, " |");
-		}
+	}
+	fprintf(arquivo, "%d", chavePrimaria);
+	fprintf(arquivo, " |");
+	getchar();
+	for (i = 0; i < colunas-1; i++)
+	{
+		printf("digite %s:\n", listaAtributos[i+1]);
+		fgets(listInformation[i], 100, stdin);
+		fprintf(arquivo, "%s", listInformation[i]);
+		fseek(arquivo, -1 , SEEK_CUR);
+		fprintf(arquivo, " |");
+		
 	}
 
 	fprintf(arquivo, "\n");
@@ -403,6 +409,21 @@ void criar_novaLinha()
 	return;
 }
 
+int verificar_chave(char ** listaAtributos, int * chaveP){
+	int i = 0;
+	char lixo[100];
+		printf("digite %s:\n", listaAtributos[i]);
+			if(scanf("%d", chaveP)){
+				//faz nada
+			}
+			else{
+				printf("você não digitou um inteiro como chave.\n");
+				fgets(lixo,100,stdin);
+				return 1;
+				}
+	return 0;
+}
+
 // quarto ponto.
 
 void listar_dadosTabela(){
@@ -415,7 +436,9 @@ void listar_dadosTabela(){
 	char listaTipos[100], string[100];
 	char nomeTabela[100];
 
-
+	printf("existem essas tabelas:\n");
+    listar_tabela();
+    
 	printf("Nome da tabela?\n");
 	fgets(nomeTabela, 100, stdin);
 
@@ -521,7 +544,9 @@ void listar_dadosTabela(){
 
 //quinto ponto.
 
-void procurar_valor(){
+void procurar_valor()
+{
+
 	int controle, i, colunas, escolha, pesquisa,  j = 0;
 	char nomeTabela[100];
 	char atributo[100];
@@ -534,7 +559,7 @@ void procurar_valor(){
 	
 	printf("Informe o nome da tabela\n");
 	fgets(nomeTabela,100,stdin);
-
+// verifica se existe uma tabela com esse nome
 	controle = lendoTabelas(nomeTabela);
 
 	if (controle == 0)
@@ -542,10 +567,11 @@ void procurar_valor(){
 		printf("essa tabela não existe\n");
 		return;
 	}
-	else{
+	else
+	{
 		strcat(nomeTabela,".TXT");
 	}
-
+// lê o arquivo que contém a tabela
 	lerTabela = fopen(nomeTabela, "r");
 
 	if (lerTabela == NULL)
@@ -553,13 +579,14 @@ void procurar_valor(){
 		printf("erro na abertura do arquivo\n");
 		return;
 	}
-	
+// lê a quantidade de colunas e armazena em uma variável	
 	fscanf(lerTabela,"colunas:%d,", &colunas);
 	
 	tipos = alocar_int(colunas*100);
-
+// mostra as colunas para o usuário escolher qual valor pesquisar
 	printf("As colunas disponíveis são:\n");
-	for (i = 0; i < colunas; i++){
+	for (i = 0; i < colunas; i++)
+	{
 		fscanf(lerTabela, "%s |", atributo);
 		
 		printf("%d - %s\n",i+1, atributo);
@@ -567,13 +594,15 @@ void procurar_valor(){
 
 	printf("Digite o numero da coluna que deseja pesquisar\n");
 	scanf("%d", &escolha);
-	for (i = 0; i < colunas; i++){
+	for (i = 0; i < colunas; i++)
+	{
 		fscanf(lerTabela, "%d,", &tipos[i]);
 	}
 
 	fseek(lerTabela, 2, SEEK_CUR);
-
-	while(! feof(lerTabela)){
+// lê a quantidade de linhas do arquivo
+	while(! feof(lerTabela))
+	{
 
 		fgets(linha, 100,lerTabela);
 		j++;
@@ -582,10 +611,12 @@ void procurar_valor(){
 	fseek(lerTabela, 0, SEEK_SET);
 	j = j-1;
 
-	for(i = 0; i < 3; i++){
+	for(i = 0; i < 3; i++)
+	{
 		fgets(lixo, 100, lerTabela);
 	}
-
+// o usuário digita um valor e o programa reconhece se é um inteiro, um float, um caractere ou uma string
+// armazena o tipo que o usuario digitou em uma lista
 	printf("Digite o valor para pesquisar\n");
 	
 	switch (tipos[escolha-1]){
@@ -606,7 +637,7 @@ void procurar_valor(){
 			break;
 
 	}
-
+// opções de busca
 	printf("1 - valores maior que o informado\n");
 	printf("2 - valores maior ou igual que o valor informado\n");
 	printf("3 - valores igual o valor informado\n");
@@ -646,7 +677,7 @@ void procurar_valor(){
 	
 	free(tipos);
 }
-
+// procura maior valor
 void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
 	int i, m, constante, valores = 0, cont = 0, aux = 0;
 	unsigned long int caso1, listaValor1[linhas];
@@ -668,6 +699,7 @@ void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 	printf("\n");
 	
 	switch (escolhat){
+// se o que o usuário digitou for um inteiro vai para o case 1
 		case 1:
 			caso1 = variavel.inteiro;
 
@@ -677,6 +709,7 @@ void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 				{
 					if (i == (escolhaAtributo-1))
 					{
+//pega o valor que tem no arquivo e armazena em uma lista
 						fscanf(arquivo, "%lu |", &listaValor1[cont]);
 						cont++;
 					}
@@ -696,7 +729,7 @@ void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 			{
 				fgets(linhaToda[i], 100, arquivo);
 			}
-
+// compara os valores que encontrou no arquivo com o que o usuário digitou para informar quantos resultados encontrou
 			for (i = 0; i < linhas; i++)
 			{
 				if (listaValor1[i] > caso1){
@@ -706,7 +739,7 @@ void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 			
 			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
 
-
+// imprime a linha aonde foi encontrado o resultado da busca
 			for (i = 0; i < linhas; i++)
 			{
 				if (listaValor1[i] > caso1){
@@ -716,11 +749,12 @@ void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 					aux++;
 				}
 			}
+// imprime uma mensagem caso não tenha encontrado nenhum valor
 			if (aux == linhas){
 				printf("Não há valores maiores\n");
 			}
 			break;
-
+// se o que o usuário digitou for um decimal vai para o case 2
 		case 2:
 			caso2 = variavel.decimal;
 
@@ -773,7 +807,7 @@ void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 				printf("Não há valores maiores\n");
 			}
 			break;
-
+// se o que o usuário digitou for um caractere vai para o case 3
 		case 3:
 			caso3 = variavel.caractere;
 
@@ -784,7 +818,7 @@ void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 					if (i == (escolhaAtributo-1))
 					{
 						fscanf(arquivo, "%c |", &listaValor3[cont]);
-						
+// se o caractere for maiúsculo, converte para minúsculo					
 						if ((listaValor3[cont] >= 'A') && (listaValor3[cont] <= 'Z')){
 							listaValor3[cont] += 32;
 						}
@@ -832,8 +866,7 @@ void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 				printf("Não há valores maiores\n");
 			}
 			break;
-
-
+// se o que o usuário digitou for um string vai para o case 4
 		case 4:
 			caso4 = variavel.string;
 			for (m = 0; m < linhas; m++)
@@ -898,7 +931,8 @@ void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 	}
 
 }
-
+// procura maior ou igual valor
+// a função acima é similar a esta e com as seguintes funções de procurar um valor, com exceção na de buscar um valor aproxima
 void procurar_maior_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
 	int i, m, constante, valores = 0, cont = 0, aux = 0;
 	unsigned long int caso1, listaValor1[linhas];
@@ -1012,7 +1046,6 @@ void procurar_maior_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linha
 			
 			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
 
-			
 			for (i = 0; i < linhas; i++)
 			{
 				if (listaValor1[i] >= caso1){
@@ -1026,8 +1059,6 @@ void procurar_maior_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linha
 				printf("Não há valores maiores ou iguais\n");
 			}
 			break;
-
-
 
 		case 3:
 			caso3 = variavel.caractere;
@@ -1087,8 +1118,6 @@ void procurar_maior_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linha
 			}
 			break;
 
-
-
 		case 4:
 			caso4 = variavel.string;
 			for (m = 0; m < linhas; m++)
@@ -1127,7 +1156,6 @@ void procurar_maior_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linha
 			}
 			
 			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
-
 			
 			for (i = 0; i < linhas; i++)
 			{
@@ -1143,8 +1171,6 @@ void procurar_maior_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linha
 				printf("Não há valores maiores ou iguais\n");
 			}
 			break;
-
-
 		
 		default:
 			printf("Valor inválido!\n");
@@ -1152,7 +1178,7 @@ void procurar_maior_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linha
 	}
 
 }
-
+// procura igual valor
 void procurar_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
 	int i, m, constante, valores = 0,cont = 0, aux = 0;
 	unsigned long int caso1, listaValor1[linhas];
@@ -1212,7 +1238,6 @@ void procurar_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 			
 			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
 
-
 			for (i = 0; i < linhas; i++)
 			{
 				if (listaValor1[i] == caso1){
@@ -1266,7 +1291,6 @@ void procurar_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 			
 			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
 
-
 			for (i = 0; i < linhas; i++)
 			{
 				if (listaValor2[i] == caso2){
@@ -1280,7 +1304,6 @@ void procurar_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 				printf("Não há valores iguais\n");
 			}
 			break;
-
 
 		case 3:
 			caso3 = variavel.caractere;
@@ -1324,7 +1347,6 @@ void procurar_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 			}
 			
 			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
-
 
 			for (i = 0; i < linhas; i++)
 			{
@@ -1379,7 +1401,6 @@ void procurar_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 			
 			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
 
-
 			for (i = 0; i < linhas; i++)
 			{
 				constante = strcmp(listaValor4[i], caso4);
@@ -1395,7 +1416,6 @@ void procurar_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 			}
 			break;
 
-
 		default:
 			printf("Valor inválido!\n");
 			break;
@@ -1403,7 +1423,7 @@ void procurar_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 	}
 
 }
-
+// procura menor valor
 void procurar_menor(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
 	int i, m, constante, valores = 0, cont = 0, aux = 0;
 	unsigned long int caso1, listaValor1[linhas];
@@ -1515,7 +1535,6 @@ void procurar_menor(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 			
 			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
 
-
 			for (i = 0; i < linhas; i++)
 			{
 				if (listaValor2[i] < caso2){
@@ -1572,7 +1591,6 @@ void procurar_menor(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 			
 			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
 
-
 			for (i = 0; i < linhas; i++)
 			{
 				if (listaValor3[i] < caso3){
@@ -1626,7 +1644,6 @@ void procurar_menor(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 			
 			printf("Existe %d valor(es) para o que voce quer:\n\n", valores);
 
-
 			for (i = 0; i < linhas; i++)
 			{
 				constante = strcmp(listaValor4[i], caso4);
@@ -1647,7 +1664,7 @@ void procurar_menor(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int
 	}
 
 }
-
+// procura menor ou igual valor
 void procurar_menor_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
 	int i, m, constante, valores = 0, cont = 0, aux = 0;
 	unsigned long int caso1, listaValor1[linhas];
@@ -1905,10 +1922,11 @@ void procurar_menor_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linha
 			break;
 	}
 }
-
+// procura valor aproximado
 void procurar_aproximado(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo){
 	int i, m, constante, valores = 0, cont = 0, aux = 0;
-	char *caso4, **listaValor4;
+	int tam[linhas], tam_palavra, iguais = 0, verificar = 0;
+	char *caso4, **listaValor4, **listaParecidos;
 	char **linhaToda;
 
 	linhaToda = alocar_char(colunas *100);
@@ -1949,27 +1967,27 @@ void procurar_aproximado(FILE *arquivo, TIPOS variavel, int escolhat, int linhas
 	{
 		fgets(linhaToda[i], 100, arquivo);
 	}
-
-	int tam[linhas];
-	int tam_palavra;
+// pega o tamanho da palavra que o usuário digitou
 	tam_palavra = strlen(caso4);
-	int iguais = 0;
-	int verificar = 0;
-	char **listaParecidos;
+// faz uma lista com os nomes parecidos
 	listaParecidos = alocar_char(colunas*100);
 		
 	for (i = 0; i < linhas; i++)
 	{
+//lista com o tamanho de cada palavra da coluna que vai fazer a pesquisa
 		tam[i] = strlen(listaValor4[i]);	
 	}
 	for (m = 0; m < linhas; m++)
 	{
 		for (i = 0; i < tam_palavra; i++)
 		{
+// pega o que o usuário digitou e a palavra da coluna que o programa está comprarando, e verifica a posição dos caracteres das duas palavras
+// se o mesmo caractere estiver igual na mesma posição, vai adicionar na variável iguais
 			if(caso4[i] == listaValor4[m][i]){
 				iguais++;	
 			}						
 		}
+//se a quantidade de palavras que estão na mesma posição for maior ou igual que metade do tamanho da palavra que o usuário digitou, então ele vai imprimir a linha da palavra
 		if(iguais >= (tam_palavra/2)){
 			strcpy(listaParecidos[verificar], linhaToda[m]);
 			verificar++;
@@ -1984,9 +2002,11 @@ void procurar_aproximado(FILE *arquivo, TIPOS variavel, int escolhat, int linhas
 	{
 		printf("%s", listaParecidos[i]);	
 	}
+// se não achar nenhum valor aproximimado ele imprime uma mensagem
 	if (verificar == 0){
 		printf("Não há valores aproximados\n");
-	}		
+	}
+// se o que o usuário digitar não for uma string		
 	else{
 		printf("Essa coluna não é string");
 	}
