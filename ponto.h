@@ -29,6 +29,7 @@ void receber_quantColuna(int colunas, FILE * arquivo);
 void criandoTabela(char nomeArquivo[100]);
 void receber_atributos(char **listAtributos, int colunas, FILE *arquivo);
 void declarar_tipo(int *ponteiroTipo, int colunas, FILE * arquivo);
+int verificar_chave(char **listaAtributos, int *chaveP);
 void procurar_maior(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo);
 void procurar_maior_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo);
 void procurar_igual(FILE *arquivo, TIPOS variavel, int escolhat, int linhas, int colunas, int escolhaAtributo);
