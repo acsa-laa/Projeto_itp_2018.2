@@ -17,16 +17,17 @@ int main()
 		switch (escolha)
 			{
    				case 1:
-     				criar_tabela();
+     				   criar_tabela();
    					break;
 
    				case 2:
- 	    			listar_tabela();
+ 	    			   listar_tabela();
    					break;
 
    				case 3:
    					getchar();
-					criar_novaLinha();
+                  listar_tabela();
+                  criar_novaLinha();
    					break;
 
    				case 4:
@@ -35,8 +36,10 @@ int main()
    					break;
 
    				case 5:
-                  			getchar();
-                  			procurar_valor();
+                  getchar();
+                  printf("existem essas tabelas:\n");
+                  listar_tabela();
+                  procurar_valor();
    					break;
 
    				case 6:
@@ -49,25 +52,25 @@ int main()
    					apagar_tabela();
    					break;
 
-              			case 8:
-                  			getchar();
-                  			criar_novaColuna();
-                  			break;
+			       case 8:
+				  getchar();
+				  criar_novaColuna();
+				  break;
 
-               			case 9:
-                  			getchar();
-                  			apagar_coluna();
-                  			break;
+			       case 9:
+				  getchar();
+				  apagar_coluna();
+				  break;
 
-               			case 10:
-                  			getchar();
-                  			alterar_valor();
-                  			break;
-   				
-               			default:
+			       case 10:
+				  getchar();
+				  alterar_valor();
+				  break;
+
+			       default:
    					printf("valor invalido\n");
    					break;
-		}
+				}
 		printf("Quer continuar? (s/n)\n");
 		scanf(" %c", &continuidade);
 	}while(continuidade == 's');
