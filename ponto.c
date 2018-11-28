@@ -299,10 +299,10 @@ void criar_novaLinha()
 	int colunas,i,p,j,controle,repet,erro;
 	repet = 0;
 	FILE * arquivo;
-	int chavePrimaria;
-	int * chaveP;
+	unsigned long int chavePrimaria;
+	unsigned long int * chaveP;
 	chaveP = &chavePrimaria;
-	int listaChave[100] = {0};
+	unsigned long int listaChave[100] = {0};
 	char lixo[100];
 	char listaTipos[100];
 	char **listaAtributos;
@@ -344,7 +344,7 @@ void criar_novaLinha()
 
 	j = 0;
 	while(!feof(arquivo)){
-		fscanf(arquivo, "%d |", &listaChave[j]);
+		fscanf(arquivo, "%lu |", &listaChave[j]);
 		fgets(lixo, 100, arquivo);
 		j++;
 	}
@@ -375,12 +375,12 @@ void criar_novaLinha()
 			}
 			if (repet == 1)
 			{
-				scanf("%d",&chavePrimaria);
+				scanf("%lu",&chavePrimaria);
 				i = i-1;
 				repet = 0;
 			}
 	}
-	fprintf(arquivo, "%d", chavePrimaria);
+	fprintf(arquivo, "%lu", chavePrimaria);
 	fprintf(arquivo, " |");
 	getchar();
 	for (i = 0; i < colunas-1; i++)
@@ -413,7 +413,7 @@ int verificar_chave(char ** listaAtributos, int * chaveP){
 	int i = 0;
 	char lixo[100];
 		printf("digite %s:\n", listaAtributos[i]);
-			if(scanf("%d", chaveP)){
+			if(scanf("%lu", chaveP)){
 				//faz nada
 			}
 			else{
@@ -2020,7 +2020,8 @@ void apagar_linhaTabela(){
 //todosArquivos é o arquivo da tabela que será apagada a linha, e novoArquivo é o arquivo que futuramente será a nova tabela (tabela sem a linha que foi apagada).
 //indices vai receber o que tem no arquivo que não faz parte de alguma linha.
 //nova é o nome do arquivo novo que futuramente será mudado para o nome da tabela.	
-	int i,j,controle,key,chaveP;
+	int i,j,controle;
+	unsigned long int key,chaveP;
 	j=0;
 	char nomeTabela[100];
 	char linha[100];
@@ -2043,7 +2044,7 @@ void apagar_linhaTabela(){
 	}
 
 	printf("Qual a chave primária da linha?\n");
-	scanf("%d", &chaveP);
+	scanf("%lu", &chaveP);
 	getchar();
 
 	strcat(nomeTabela,".TXT");
@@ -2079,12 +2080,12 @@ void apagar_linhaTabela(){
 	
 	for (i = 0; i < j-4; i++)
 	{
-		fscanf(todosArquivos, "%d |", &key);
+		fscanf(todosArquivos, "%lu |", &key);
 		fgets(linha, 100, todosArquivos);
 	
 		if (key != chaveP)
 		{
-			fprintf(novoArquivo,"%d |", key);
+			fprintf(novoArquivo,"%lu |", key);
 			fprintf(novoArquivo, "%s", linha);
 		}
 	}
