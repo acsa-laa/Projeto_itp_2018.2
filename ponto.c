@@ -1929,6 +1929,13 @@ void procurar_aproximado(FILE *arquivo, TIPOS variavel, int escolhat, int linhas
 	char *caso4, **listaValor4, **listaParecidos;
 	char **linhaToda;
 
+	// se o que o usuário digitar não for uma string		
+	if (escolhat != 4)
+	{
+		printf("Essa coluna não é string\n");
+		return;
+	}
+
 	linhaToda = alocar_char(colunas *100);
 
 	caso4 = (char*) malloc(linhas*colunas*sizeof(char));
@@ -1988,7 +1995,7 @@ void procurar_aproximado(FILE *arquivo, TIPOS variavel, int escolhat, int linhas
 			}						
 		}
 //se a quantidade de palavras que estão na mesma posição for maior ou igual que metade do tamanho da palavra que o usuário digitou, então ele vai imprimir a linha da palavra
-		if(iguais >= (tam_palavra/2)){
+		if(iguais >= (tam_palavra)){
 			strcpy(listaParecidos[verificar], linhaToda[m]);
 			verificar++;
 		}
@@ -2005,10 +2012,6 @@ void procurar_aproximado(FILE *arquivo, TIPOS variavel, int escolhat, int linhas
 // se não achar nenhum valor aproximimado ele imprime uma mensagem
 	if (verificar == 0){
 		printf("Não há valores aproximados\n");
-	}
-// se o que o usuário digitar não for uma string		
-	else{
-		printf("Essa coluna não é string");
 	}
 }
 
@@ -2235,8 +2238,7 @@ void criar_novaColuna()
 	printf("qual será o nome da coluna?\n");
 	scanf("%s", atributo);
 
-	fprintf(novoArquivo, "%s", atributo);
-	fprintf(novoArquivo, " |\n");
+	fprintf(novoArquivo, "%s |\n", atributo);
 
 	for (i = 0; i < col-1; i++)
 	{
@@ -2260,6 +2262,7 @@ void criar_novaColuna()
 		fprintf(novoArquivo, "%s", atributo);
 		fseek(novoArquivo, -1, SEEK_CUR);
 		fprintf(novoArquivo, "0 |");
+		fprintf(novoArquivo, "\n");
 	}
 
 	remove(nomeTabela);
